@@ -4,6 +4,9 @@ const mysql = require('mysql2');
 const app = express();
 const port = 3000;
 
+// const queries = require('./queries');
+
+
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
@@ -24,21 +27,28 @@ db.connect((err) => {
 app.get('/', (req, res) => {
 	const bookCountQuery = 'SELECT COUNT(*) as book_count FROM Books';
 	const memberCountQuery = 'SELECT COUNT(*) as member_count FROM Members';
-	const authorCountQuery = `
-    SELECT COUNT(DISTINCT Programming_Language) as author_count 
-    FROM Books
-  `;
+	const authorCountQuery = ` SELECT COUNT(DISTINCT Programming_Language) as author_count FROM Books `;
+	const membersWithoutLoans = `
+SELECT COUNT(Members.Member_ID) AS Members_Without_Loans
+FROM Members
+LEFT JOIN Loans ON Members.Member_ID = Loans.Member_ID AND Loans.Return_Date IS NULL
+WHERE Loans.Member_ID IS NULL;
+`;
 
 	db.query(bookCountQuery, (err, bookCountResult) => {
 		if (err) throw err;
 		db.query(memberCountQuery, (err, memberCountResult) => {
 			if (err) throw err;
-			db.query(authorCountQuery, (err, authorCountResult) => {
+			db.query(membersWithoutLoans, (err, withoutLoansCountResult) => {
 				if (err) throw err;
-				res.render('index', {
-					bookCount: bookCountResult[0].book_count,
-					memberCount: memberCountResult[0].member_count,
-					authorCount: authorCountResult[0].author_count
+				db.query(authorCountQuery, (err, authorCountResult) => {
+					if (err) throw err;
+					res.render('index', {
+						membersWithoutLoans: withoutLoansCountResult[0].Members_Without_Loans,
+						bookCount: bookCountResult[0].book_count,
+						memberCount: memberCountResult[0].member_count,
+						authorCount: authorCountResult[0].author_count
+					});
 				});
 			});
 		});
@@ -46,7 +56,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/books', (req, res) => {
-	const query = 'SELECT * FROM Books';
+	const query = 'SELECT Book_ID, Programming_Language, Price, UPPER(Title) as BookTitle FROM Books ORDER BY Price DESC';
 	db.query(query, (err, results) => {
 		if (err) throw err;
 		res.render('books', { books: results });
@@ -66,7 +76,6 @@ app.post('/add-book', (req, res) => {
 	});
 });
 
-// Add these new endpoints for members
 app.get('/members', (req, res) => {
 	const query = 'SELECT * FROM Members';
 	db.query(query, (err, results) => {
@@ -91,11 +100,11 @@ app.post('/add-member', (req, res) => {
 // Add these new endpoints for loans
 app.get('/loans', (req, res) => {
 	const query = `
-    SELECT l.Loan_ID, b.Title, m.Name, l.Loan_Date, l.Return_Date
-    FROM Loans l
-    JOIN Books b ON l.Book_ID = b.Book_ID
-    JOIN Members m ON l.Member_ID = m.Member_ID
-  `;
+SELECT l.Loan_ID, b.Title, m.Name, l.Loan_Date, l.Return_Date
+FROM Loans l
+JOIN Books b ON l.Book_ID = b.Book_ID
+JOIN Members m ON l.Member_ID = m.Member_ID
+`;
 	db.query(query, (err, results) => {
 		if (err) throw err;
 		res.render('loans', { loans: results });
