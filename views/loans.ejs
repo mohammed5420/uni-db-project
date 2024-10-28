@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loans</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px 20px;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            text-align: center;
+            color: #007bff;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #f2f2f2;
+        }
+
+        th {
+            background-color: #007bff;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f7f7f7;
+        }
+
+        /* Navigation Styles */
+        .nav-link {
+            display: inline-block;
+            padding: 16px 32px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.3s;
+            margin-top: 30px;
+        }
+
+        .nav-link:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Loans</h1>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Book</th>
+                <th>Member</th>
+                <th>Loan Date</th>
+                <th>Return Date</th>
+            </tr>
+            <% loans.forEach(loan => { %>
+                <tr>
+                    <td><%= loan.Loan_ID %></td>
+                    <td><%= loan.Title %></td>
+                    <td><%= loan.Name %></td>
+                    <td><%= loan.Loan_Date.toLocaleDateString() %></td>
+                    <td><%= loan.Return_Date ? loan.Return_Date.toLocaleDateString() : 'Not Returned' %></td>
+                </tr>
+            <% }); %>
+        </table>
+        <a href="/add-loan" class="nav-link">Add New Loan</a>
+        <a href="/" class="nav-link">Back to Home</a>
+    </div>
+</body>
+</html>
